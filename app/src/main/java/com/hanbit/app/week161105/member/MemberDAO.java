@@ -90,8 +90,22 @@ public class MemberDAO extends SQLiteOpenHelper{
         return count;
     }
     public MemberDTO selectOne(String id){
-        MemberDTO member = new MemberDTO();
-        return member;
+        String sql =  "SELECT "+String.format("%s,%s,%s,%s,%s,%s,%s",ID,PW,NAME,EMAIL,PHONE,PHOTO,ADDR)
+                +String.format(" FROM %s WHERE %s = '%s';",TABLE,ID,id);
+        MemberDTO temp = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql,null);
+        if(cursor.moveToNext()){
+            temp = new MemberDTO();
+            temp.setId(cursor.getString(0));
+            temp.setPw(cursor.getString(1));
+            temp.setName(cursor.getString(2));
+            temp.setEmail(cursor.getString(3));
+            temp.setPhone(cursor.getString(4));
+            temp.setPhoto(cursor.getString(5));
+            temp.setAddr(cursor.getString(6));
+        }
+        return temp;
     }
     public ArrayList<MemberDTO> selectList(){
         String sql = "SELECT "+String.format("%s,%s,%s,%s,%s,%s,%s",ID,PW,NAME,EMAIL,PHONE,PHOTO,ADDR)
@@ -134,7 +148,7 @@ public class MemberDAO extends SQLiteOpenHelper{
     public void update(MemberDTO param){
 
     }
-    public void delete(MemberDTO param){
-
+    public void delete(String id){
+        Log.d("삭제할 ID",id);
     }
 }
