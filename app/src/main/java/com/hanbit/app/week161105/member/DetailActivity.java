@@ -10,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hanbit.app.week161105.R;
+import com.hanbit.app.week161105.util.MapsActivity;
+import com.hanbit.app.week161105.util.Phone;
+import com.hanbit.app.week161105.util.WebActivity;
 
 public class DetailActivity extends AppCompatActivity implements View.OnClickListener{
     MemberService service;
@@ -17,11 +20,14 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     TextView tv_name,tv_id,tv_pw,tv_email,tv_phone,tv_address;
     Button bt_call,bt_message,bt_map,bt_movie,bt_update,bt_list;
     String id;
+    Phone phone;
+    MemberDTO member;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         service = new MemberServiceImpl(this.getApplicationContext());
+
         iv_photo = (ImageView) findViewById(R.id.iv_photo);
         tv_name = (TextView) findViewById(R.id.tv_name);
         tv_id = (TextView) findViewById(R.id.tv_id);
@@ -30,7 +36,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         tv_phone = (TextView) findViewById(R.id.tv_phone);
         tv_address = (TextView) findViewById(R.id.tv_address);
         id = this.getIntent().getExtras().getString("id");
-        MemberDTO member = service.detail(id);
+        member = service.detail(id);
         if(member!=null){
             tv_name.setText(member.getName());
             tv_id.setText(member.getId());
@@ -62,13 +68,29 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
+        Intent intent;
         switch (v.getId()){
-            case R.id.bt_call: break;
+            case R.id.bt_call:
+                Log.d("전화번호클릭:","OK");
+                phone = new Phone(this,this);
+                phone.directCall(member.getPhone());
+                break;
             case R.id.bt_message: break;
-            case R.id.bt_map: break;
-            case R.id.bt_movie: break;
+            case R.id.bt_map:
+                Log.d("구글맵 클릭:","OK");
+                intent = new Intent(DetailActivity.this, MapsActivity.class);
+                String pos = member.getAddr();
+                // 시청역 37.5665350,126.9779690
+                pos = "37.5665350,126.9779690";
+                intent.putExtra("pos",pos);
+                startActivity(intent);
+                break;
+            case R.id.bt_movie:
+                intent = new Intent(DetailActivity.this, WebActivity.class);
+                startActivity(intent);
+                break;
             case R.id.bt_update:
-                Intent intent = new Intent(DetailActivity.this, UpdateActivity.class);
+                intent = new Intent(DetailActivity.this, UpdateActivity.class);
                 intent.putExtra("id",id);
                 startActivity(intent);
                 break;
