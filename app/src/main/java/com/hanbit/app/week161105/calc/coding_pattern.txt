@@ -1,0 +1,67 @@
+Service Method Pattern
+   public void add(Object param);
+   public int count();
+   public Object findOne(String key);
+   public ArrayList<Object> findBy(Object param);
+   public ArrayList<Object> list();
+   public void update(Object param);
+   public void delete(String key);
+==========================================
+DAO 는 CRUD 를 개념으로 메소드를 작성한다
+Create : INSERT
+   String sql = "";
+   SQLiteDatabase db = this.getWritableDatabase();
+   db.execSQL(sql);
+Read : SELECT
+   SELECT COUNT(*) -> return Type is Number
+   SELECT * FROM  -> return Type is ArrayList
+   SELECT * FROM WHERE -> return Type is ArrayList
+   SELECT * FROM WHERE -> return Type is One Instance
+
+   String sql = "";
+   SQLiteDatabase db = this.getReadableDatabase();
+   Cursor cursor = db.rawQuery(sql,null);
+
+
+Update : UPDATE
+   String sql = "";
+   SQLiteDatabase db = this.getWritableDatabase();
+   db.execSQL(sql);
+Delete : DELETE
+   String sql = "";
+   SQLiteDatabase db = this.getWritableDatabase();
+   db.execSQL(sql);
+===========================================
+SQL Pattern
+Create
+   INSERT INTO table() VALUES();
+Read Count
+   SELECT COUNT(*) FROM table;
+Read One
+   SELECT * FROM table WHERE column = 'key';
+Read Some
+   SELECT * FROM table WHERE column = 'search word';
+Read All
+   SELECT * FROM table;
+Update
+   UPDATE table SET column1 = 'value',column2 = 'value'WHERE column = 'key';
+
+Delete
+   DELETE FROM table WHERE column = 'key';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
