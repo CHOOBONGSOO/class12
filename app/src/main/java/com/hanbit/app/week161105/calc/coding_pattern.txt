@@ -12,6 +12,7 @@ Create : INSERT
    String sql = "";
    SQLiteDatabase db = this.getWritableDatabase();
    db.execSQL(sql);
+    db.close();
 Read : SELECT
    SELECT COUNT(*) -> return Type is Number
    SELECT * FROM  -> return Type is ArrayList
@@ -27,10 +28,12 @@ Update : UPDATE
    String sql = "";
    SQLiteDatabase db = this.getWritableDatabase();
    db.execSQL(sql);
+    db.close();
 Delete : DELETE
    String sql = "";
    SQLiteDatabase db = this.getWritableDatabase();
    db.execSQL(sql);
+    db.close();
 ===========================================
 SQL Pattern
 Create

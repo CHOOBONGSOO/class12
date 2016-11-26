@@ -16,7 +16,13 @@ import static com.hanbit.app.week161105.global.Member.PHONE;
 import static com.hanbit.app.week161105.global.Member.PHOTO;
 import static com.hanbit.app.week161105.global.Member.PW;
 import static com.hanbit.app.week161105.global.Member.TABLE;
+import static com.hanbit.app.week161105.global.Message.CONTENT;
+import static com.hanbit.app.week161105.global.Message.MESSAGE;
+import static com.hanbit.app.week161105.global.Message.RECEIVER;
+import static com.hanbit.app.week161105.global.Message.SENDER;
+import static com.hanbit.app.week161105.global.Message.WRITE_TIME;
 
+// "+ADDR+","+EMAIL+","+ID+","+NAME+","+PHONE+","+PHOTO+","+PW+"
 /**
  * Created by 1027 on 2016-11-12.
  */
@@ -25,7 +31,7 @@ public class MemberDAO extends SQLiteOpenHelper{
 
 
     public MemberDAO(Context context) {
-        super(context, "hanbit2.db", null, 1);
+        super(context, "hanbit3.db", null, 1);
         this.getWritableDatabase();
         Log.d("DB생성","======SUCCESS=====");
     }
@@ -34,14 +40,22 @@ public class MemberDAO extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS "+ TABLE+"\n" +
                 "(\n" +
-                ID+" text primary key,\n" +
-                PW+" text,\n" +
-                NAME+" text,\n" +
-                EMAIL+" text,\n" +
-                PHONE+" text,\n" +
-                PHOTO+" text,\n" +
-                ADDR+" text" +
+                ID+" TEXT PRIMARY KEY,\n" +
+                PW+" TEXT,\n" +
+                NAME+" TEXT,\n" +
+                EMAIL+" TEXT,\n" +
+                PHONE+" TEXT,\n" +
+                PHOTO+" TEXT,\n" +
+                ADDR+" TEXT" +
                 ");");
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+MESSAGE+" (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT,"+
+                SENDER+" TEXT," +
+                RECEIVER+" TEXT," +
+                WRITE_TIME+" TEXT," +
+                CONTENT+" TEXT," +
+                ID+" TEXT, CONSTRAINT message_fk FOREIGN KEY(id) REFERENCES "
+                +TABLE+"("+ID+"));");
         db.execSQL("INSERT INTO "+ TABLE+" ("+ ID
                 +", "+ PW+", "+ NAME+", "+ EMAIL+", "
                 + PHONE+", "+ PHOTO+", "+ ADDR+")\n" +
@@ -66,7 +80,20 @@ public class MemberDAO extends SQLiteOpenHelper{
                 +", "+ PW+", "+ NAME+", "+ EMAIL+", "
                 + PHONE+", "+ PHOTO+", "+ ADDR+")\n" +
                 "VALUES ('Moon','1','Heejoon','hong@test.com','010-1234-5678','default.jpg','Seoul');");
+        db.execSQL("INSERT INTO "+ MESSAGE+" ("+ SENDER
+                +", "+ RECEIVER+", "+ WRITE_TIME+", "+ CONTENT+", "
+                + ID+")\n" +
+                "VALUES ('KIM','HONG','2016-11-26 12:40','Hello Hong !!','hong');");
+        db.execSQL("INSERT INTO "+ MESSAGE+" ("+ SENDER
+                +", "+ RECEIVER+", "+ WRITE_TIME+", "+ CONTENT+", "
+                + ID+")\n" +
+                "VALUES ('KIM','HONG','2016-11-26 12:42','Thank you !!','hong');");
+        db.execSQL("INSERT INTO "+ MESSAGE+" ("+ SENDER
+                +", "+ RECEIVER+", "+ WRITE_TIME+", "+ CONTENT+", "
+                + ID+")\n" +
+                "VALUES ('KIM','HONG','2016-11-26 12:50','Good Bye !!','hong');");
         Log.d("Memer Table 생성","======SUCCESS=====");
+        Log.d("Message Table 생성","======SUCCESS=====");
     }
 
     @Override
@@ -81,12 +108,20 @@ public class MemberDAO extends SQLiteOpenHelper{
         Log.d("DAO JOIN EMAIL: ",param.getEmail());
         Log.d("DAO JOIN PHONE: ",param.getPhone());
         Log.d("DAO JOIN ADDRESS: ",param.getAddr());
-        String sql = "";
+        String sql = "INSERT INTO table("+ADDR+","+EMAIL+","+ID+","+NAME+","+PHONE+","+PHOTO+","+PW
+                +") VALUES("+param.getAddr()+","+param.getEmail()+","+param.getId()+","+param.getName()+","+param.getPhone()+","+param.getPhoto()+","+param.getPw()+");";
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(sql);
+        db.close();
     }
     public int selectCount(){
         int count = 0;
+        String sql = "SELECT COUNT(*) as count FROM table;";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql,null);
+        if (cursor.moveToNext()) {
+            count = cursor.getInt(cursor.getColumnIndex("count"));
+        }
         return count;
     }
     public MemberDTO selectOne(String id){
@@ -106,6 +141,29 @@ public class MemberDAO extends SQLiteOpenHelper{
             temp.setAddr(cursor.getString(6));
         }
         return temp;
+    }
+    public ArrayList<MemberDTO> findBy(MemberDTO param){
+        String sql = "SELECT "+ADDR+","+EMAIL+","+ID+","+NAME+","+PHONE+","+PHOTO+","+PW+" " +
+                " FROM "+TABLE+" WHERE "+ID+" = '"+param.getId()+"';";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql,null);
+        ArrayList<MemberDTO> list = new ArrayList<MemberDTO>();
+        if(cursor != null){
+            Log.d("findBy Result :","EXIST !!");
+            cursor.moveToFirst();
+        }
+        do{
+            MemberDTO temp = new MemberDTO();
+            temp.setId(cursor.getString(2));
+            temp.setPw(cursor.getString(6));
+            temp.setName(cursor.getString(3));
+            temp.setEmail(cursor.getString(1));
+            temp.setPhone(cursor.getString(4));
+            temp.setPhoto(cursor.getString(5));
+            temp.setAddr(cursor.getString(0));
+            list.add(temp);
+        }while(cursor.moveToNext());
+        return list;
     }
     public ArrayList<MemberDTO> selectList(){
         String sql = "SELECT "+String.format("%s,%s,%s,%s,%s,%s,%s",ID,PW,NAME,EMAIL,PHONE,PHOTO,ADDR)
@@ -146,9 +204,23 @@ public class MemberDAO extends SQLiteOpenHelper{
         return member;
     }
     public void update(MemberDTO param){
+        // ID,PW,NAME,EMAIL,PHONE,PHOTO,ADDR
+        String sql = "UPDATE "+TABLE+" SET "+PW+" = '"+param.getPw()+"',"
+                +EMAIL+" = '"+param.getEmail()+"'"
+                +PHONE+" = '"+param.getPhone()+"'"
+                +PHOTO+" = '"+param.getPhoto()+"'"
+                +ADDR+" = '"+param.getAddr()+"'"
+                +" WHERE "+ID+" = '"+param.getId()+"';";
 
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(sql);
+        db.close();
     }
     public void delete(String id){
         Log.d("삭제할 ID",id);
+        String sql = "DELETE FROM "+TABLE+" WHERE "+ID+" = '"+id+"';";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(sql);
+        db.close();
     }
 }
