@@ -12,7 +12,7 @@ Create : INSERT
    String sql = "";
    SQLiteDatabase db = this.getWritableDatabase();
    db.execSQL(sql);
-    db.close();
+   db.close();
 Read : SELECT
    SELECT COUNT(*) -> return Type is Number
    SELECT * FROM  -> return Type is ArrayList
@@ -28,18 +28,18 @@ Update : UPDATE
    String sql = "";
    SQLiteDatabase db = this.getWritableDatabase();
    db.execSQL(sql);
-    db.close();
+   db.close();
 Delete : DELETE
    String sql = "";
    SQLiteDatabase db = this.getWritableDatabase();
    db.execSQL(sql);
-    db.close();
+   db.close();
 ===========================================
-SQL Pattern
+SQL DML Pattern
 Create
    INSERT INTO table() VALUES();
 Read Count
-   SELECT COUNT(*) FROM table;
+   SELECT COUNT(*) as count FROM table;
 Read One
    SELECT * FROM table WHERE column = 'key';
 Read Some
@@ -51,6 +51,33 @@ Update
 
 Delete
    DELETE FROM table WHERE column = 'key';
+===========================================
+SQL DDL Pattern
+CRUD
+
+== BASE TABLE ==
+
+CREATE TABLE IF NOT EXISTS table +
+                (
+                id TEXT PRIMARY KEY," +
+               ...
+               ...
+               ...
+                ");
+
+== SUB TABLE ==
+
+CREATE TABLE IF NOT EXISTS table2 (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT,"+
+                ...
+		...
+		...
+                ID+" TEXT, CONSTRAINT fk_name FOREIGN KEY(id) REFERENCES "
+                +TABLE+"("+ID+"));
+DROP TABLE table;
+
+
+
 
 
 
